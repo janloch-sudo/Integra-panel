@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Informačný Panel - Integra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle at top left, #1e293b, #0f172a); color: white; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100vh; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem; }
+        .accent-line { height: 100%; width: 12px; border-radius: 6px; position: absolute; left: 0; top: 0; }
+        .logo-text { color: #135bec; text-shadow: 0 0 25px rgba(19, 91, 236, 0.5); letter-spacing: -3px; }
+        .marquee-container { background: rgba(19, 91, 236, 0.95); position: fixed; bottom: 0; left: 0; width: 100%; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; animation: marquee 30s linear infinite; }
+        .fade-in { animation: fadeIn 0.8s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="p-16">
+    <header class="flex justify-between items-center mb-16">
+        <div class="leading-tight">
+            <span class="text-8xl font-black logo-text">INTEGRA</span>
+            <p id="meniny-dnes" class="text-blue-400 text-2xl font-bold mt-2 italic">Načítavam meniny...</p>
+        </div>
+        <div class="text-right leading-none">
+            <div id="hodiny" class="text-8xl font-black tracking-tighter text-white">00:00</div>
+            <div id="datum" class="text-2xl text-slate-400 uppercase tracking-[0.3em] font-bold mt-4">...</div>
+        </div>
+    </header>
+
+    <main id="text-rezim">
+        <div id="sekcia-menu" class="grid grid-cols-2 gap-12 fade-in">
+            <div class="glass p-12 relative overflow-hidden shadow-2xl">
+                <div class="accent-line bg-orange-500 shadow-[0_0_20px_#f97316]"></div>
+                <span class="text-orange-500 font-black uppercase tracking-widest text-2xl">Dnešná polievka</span>
+                <p id="tv-polievka" class="text-7xl font-extrabold mt-10 leading-[1.1]">---</p>
+            </div>
+            <div class="glass p-12 relative overflow-hidden shadow-2xl">
+                <div class="accent-line bg-emerald-500 shadow-[0_0_20px_#10b981]"></div>
+                <span class="text-emerald-500 font-black uppercase tracking-widest text-2xl">Hlavný chod</span>
+                <p id="tv-hlavne" class="text-7xl font-extrabold mt-10 leading-[1.1]">---</p>
+            </div>
+        </div>
+
+        <div id="sekcia-tyzden" class="hidden glass p-12 border-l-[12px] border-blue-500 fade-in">
+            <h2 class="text-4xl font-black mb-10 text-blue-500 uppercase tracking-widest">Plán aktivít na týždeň</h2>
+            <div class="grid grid-cols-5 gap-6">
+                <div class="bg-white/5 p-6 rounded-3xl"><span class="text-blue-400 font-black text-2xl block mb-4 border-b border-blue-500/30 pb-2">PO</span><p id="t-po" class="text-2xl font-semibold leading-relaxed text-slate-200">---</p></div>
+                <div class="bg-white/5 p-6 rounded-3xl"><span class="text-blue-400 font-black text-2xl block mb-4 border-b border-blue-500/30 pb-2">UT</span><p id="t-ut" class="text-2xl font-semibold leading-relaxed text-slate-200">---</p></div>
+                <div class="bg-white/5 p-6 rounded-3xl"><span class="text-blue-400 font-black text-2xl block mb-4 border-b border-blue-500/30 pb-2">ST</span><p id="t-st" class="text-2xl font-semibold leading-relaxed text-slate-200">---</p></div>
+                <div class="bg-white/5 p-6 rounded-3xl"><span class="text-blue-400 font-black text-2xl block mb-4 border-b border-blue-500/30 pb-2">ŠT</span><p id="t-št" class="text-2xl font-semibold leading-relaxed text-slate-200">---</p></div>
+                <div class="bg-white/5 p-6 rounded-3xl"><span class="text-blue-400 font-black text-2xl block mb-4 border-b border-blue-500/30 pb-2">PI</span><p id="t-pi" class="text-2xl font-semibold leading-relaxed text-slate-200">---</p></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="foto-rezim" class="hidden fixed inset-0 z-[100] bg-black p-10">
+        <div class="glass h-full w-full overflow-hidden flex items-center justify-center p-4">
+            <img id="full-foto" src="" class="max-h-full max-w-full object-contain rounded-xl shadow-2xl">
+        </div>
+    </div>
+
+    <footer class="marquee-container py-8 shadow-[0_-20px_60px_rgba(0,0,0,0.6)]">
+        <div class="whitespace-nowrap overflow-hidden">
+            <span id="tv-program" class="animate-marquee text-5xl font-black uppercase text-white">...</span>
+        </div>
+    </footer>
+
+    <script>
+        const dbUrl = "https://cdz-integra-default-rtdb.firebaseio.com/jedalnicek.json";
+        let mode = 0; // 0=Menu, 1=Týždeň
+
+        function refresh() {
+            fetch(dbUrl).then(r => r.json()).then(d => {
+                if(!d) return;
+                const isFoto = d.zobrazit_foto;
+                document.getElementById('foto-rezim').classList.toggle('hidden', !isFoto);
+                document.getElementById('text-rezim').classList.toggle('hidden', isFoto);
+                
+                if(isFoto) { 
+                    document.getElementById('full-foto').src = d.url_foto; 
+                } else {
+                    document.getElementById('tv-polievka').innerText = d.polievka || "Pripravujeme...";
+                    document.getElementById('tv-hlavne').innerText = d.hlavne_jedlo || "Pripravujeme...";
+                    if(d.tyzden) {
+                        document.getElementById('t-po').innerText = d.tyzden.po || "---";
+                        document.getElementById('t-ut').innerText = d.tyzden.ut || "---";
+                        document.getElementById('t-st').innerText = d.tyzden.st || "---";
+                        document.getElementById('t-št').innerText = d.tyzden.št || "---";
+                        document.getElementById('t-pi').innerText = d.tyzden.pi || "---";
+                    }
+                }
+                if(d.program) {
+                    document.getElementById('tv-program').innerText = " • " + d.program + " • " + d.program + " • " + d.program;
+                }
+            });
+        }
+
+        // Automatické striedanie obrazoviek každých 15 sekúnd
+        setInterval(() => {
+            if(document.getElementById('foto-rezim').classList.contains('hidden')) {
+                const m = document.getElementById('sekcia-menu');
+                const t = document.getElementById('sekcia-tyzden');
+                if(mode === 0) { 
+                    m.classList.add('hidden'); 
+                    t.classList.remove('hidden'); 
+                    mode = 1; 
+                } else { 
+                    t.classList.add('hidden'); 
+                    m.classList.remove('hidden'); 
+                    mode = 0; 
+                }
+            }
+        }, 15000); 
+
+        function clock() {
+            const n = new Date();
+            document.getElementById('hodiny').innerText = n.toLocaleTimeString('sk-SK', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('datum').innerText = n.toLocaleDateString('sk-SK', {weekday:'long', day:'numeric', month:'long'});
+        }
+
+        function nameDay() { 
+            fetch('https://meniny.vyskusa.sk/api/ok/sk')
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('meniny-dnes').innerText = "Dnes má meniny: " + d.meniny.sk;
+            }).catch(() => {}); 
+        }
+        
+        setInterval(refresh, 3000); 
+        setInterval(clock, 1000);
+        refresh(); clock(); nameDay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html class="dark" lang="sk">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CDZ Integra - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#135bec", "surface": "#1e2532", "bg-dark": "#101622" } } } }
+    </script>
+</head>
+<body class="bg-bg-dark text-white font-['Plus_Jakarta_Sans'] min-h-screen pb-20 p-6">
+    <div class="max-w-md mx-auto">
+        <header class="flex items-center justify-between mb-8 leading-tight">
+            <div>
+                <h1 class="text-2xl font-extrabold text-white leading-none text-blue-500">CDZ INTEGRA</h1>
+                <p class="text-slate-400 text-sm mt-1">Správa televízneho panelu</p>
+            </div>
+            <button onclick="posli('zobrazit_foto', false)" class="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl text-xs font-bold uppercase hover:bg-red-500 hover:text-white transition-all">Stop Foto</button>
+        </header>
+
+        <section class="mb-8">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 ml-1">Denný oznam (Bežiaci text)</h2>
+            <div class="bg-surface p-2 rounded-2xl border border-white/5 shadow-xl">
+                <textarea oninput="posli('program', this.value)" rows="2" placeholder="Napr: 10:00 Cvičenie | 14:00 Arteterapia..." class="w-full bg-transparent border-none focus:ring-0 p-2 text-white placeholder:text-slate-600 resize-none"></textarea>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 ml-1">Dnešné menu</h2>
+            <div class="space-y-3">
+                <div class="bg-surface p-4 rounded-2xl border border-white/5 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-orange-500">soup_kitchen</span>
+                    <input type="text" oninput="posli('polievka', this.value)" placeholder="Dnešná polievka" class="bg-transparent border-none focus:ring-0 w-full p-0 text-lg font-bold">
+                </div>
+                <div class="bg-surface p-4 rounded-2xl border border-white/5 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-emerald-500">flatware</span>
+                    <input type="text" oninput="posli('hlavne_jedlo', this.value)" placeholder="Hlavné jedlo" class="bg-transparent border-none focus:ring-0 w-full p-0 text-lg font-bold">
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 ml-1">Týždenný plán aktivít</h2>
+            <div class="bg-surface p-4 rounded-2xl border border-white/5 space-y-3">
+                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-xl"><span class="w-6 text-[10px] font-black text-primary">PO</span><input type="text" oninput="posliTyzden('po', this.value)" class="bg-transparent border-none focus:ring-0 w-full p-0 text-sm" placeholder="Pondelok..."></div>
+                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-xl"><span class="w-6 text-[10px] font-black text-primary">UT</span><input type="text" oninput="posliTyzden('ut', this.value)" class="bg-transparent border-none focus:ring-0 w-full p-0 text-sm" placeholder="Utorok..."></div>
+                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-xl"><span class="w-6 text-[10px] font-black text-primary">ST</span><input type="text" oninput="posliTyzden('st', this.value)" class="bg-transparent border-none focus:ring-0 w-full p-0 text-sm" placeholder="Streda..."></div>
+                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-xl"><span class="w-6 text-[10px] font-black text-primary">ŠT</span><input type="text" oninput="posliTyzden('št', this.value)" class="bg-transparent border-none focus:ring-0 w-full p-0 text-sm" placeholder="Štvrtok..."></div>
+                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-xl"><span class="w-6 text-[10px] font-black text-primary">PI</span><input type="text" oninput="posliTyzden('pi', this.value)" class="bg-transparent border-none focus:ring-0 w-full p-0 text-sm" placeholder="Piatok..."></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const dbUrl = "https://cdz-integra-default-rtdb.firebaseio.com/jedalnicek.json";
+        function posli(k, h) {
+            fetch(dbUrl).then(r => r.json()).then(d => {
+                let n = d || {}; n[k] = h;
+                if(k === 'polievka' || k === 'hlavne_jedlo') n.zobrazit_foto = false;
+                fetch(dbUrl, { method: 'PUT', body: JSON.stringify(n) });
+            });
+        }
+        function posliTyzden(den, h) {
+            fetch(dbUrl).then(r => r.json()).then(d => {
+                let n = d || {}; if(!n.tyzden) n.tyzden = {}; n.tyzden[den] = h;
+                fetch(dbUrl, { method: 'PUT', body: JSON.stringify(n) });
+            });
+        }
+    </script>
+</body>
+</html>
