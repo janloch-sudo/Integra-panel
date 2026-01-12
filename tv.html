@@ -8,19 +8,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100vh; margin: 0; transition: background-color 1s ease; }
-        .glass { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem; }
+        .glass { background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem; }
         .logo-text { color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.3); letter-spacing: -3px; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; animation: marquee 30s linear infinite; }
-        .fade-in { animation: fadeIn 0.8s ease-in-out; }
+        .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
+        .fade-in { animation: fadeIn 1s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Animácia pre fotku - jemné priblíženie */
+        .img-zoom { animation: zoomEffect 20s infinite alternate linear; }
+        @keyframes zoomEffect { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body class="p-12">
-    <header id="tv-header" class="flex justify-between items-center mb-10">
+    <header id="tv-header" class="flex justify-between items-center mb-10 z-[150] relative">
         <div class="leading-tight">
             <span class="text-7xl font-black logo-text">INTEGRA</span>
-            <p id="meniny-dnes" class="text-white/80 text-xl font-bold mt-1 italic">Načítavam...</p>
+            <p id="meniny-dnes" class="text-white/80 text-xl font-bold mt-1 italic uppercase">...</p>
         </div>
         <div class="text-right leading-none">
             <div id="hodiny" class="text-7xl font-black">00:00</div>
@@ -28,70 +31,81 @@
         </div>
     </header>
 
-    <main id="text-rezim">
-        <div id="sekcia-menu" class="grid grid-cols-2 gap-10 fade-in">
-            <div class="glass p-10 relative border-l-[12px] border-orange-500 shadow-2xl">
-                <span class="text-orange-500 font-black uppercase text-xl">Dnešná polievka</span>
-                <p id="tv-polievka" class="text-6xl font-extrabold mt-8 leading-tight">---</p>
+    <main class="relative h-[65vh]">
+        <div id="text-rezim" class="fade-in h-full">
+            <div id="sekcia-menu" class="grid grid-cols-2 gap-10 h-full">
+                <div class="glass p-10 border-l-[12px] border-orange-500 shadow-2xl">
+                    <span class="text-orange-500 font-black uppercase text-xl">Dnešná polievka</span>
+                    <p id="tv-polievka" class="text-6xl font-extrabold mt-8 leading-tight">---</p>
+                </div>
+                <div class="glass p-10 border-l-[12px] border-emerald-500 shadow-2xl">
+                    <span class="text-emerald-500 font-black uppercase text-xl">Hlavný chod</span>
+                    <p id="tv-hlavne" class="text-6xl font-extrabold mt-8 leading-tight">---</p>
+                </div>
             </div>
-            <div class="glass p-10 relative border-l-[12px] border-emerald-500 shadow-2xl">
-                <span class="text-emerald-500 font-black uppercase text-xl">Hlavný chod</span>
-                <p id="tv-hlavne" class="text-6xl font-extrabold mt-8 leading-tight">---</p>
+            <div id="sekcia-tyzden" class="hidden glass p-10 border-l-[12px] border-white/50 h-full shadow-2xl">
+                <h2 class="text-3xl font-black mb-8 text-white uppercase tracking-widest">Týždenný plán</h2>
+                <div class="grid grid-cols-5 gap-4 h-full">
+                    <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/40 font-black block border-b border-white/10 mb-4">PO</span><p id="t-po" class="text-2xl">---</p></div>
+                    <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/40 font-black block border-b border-white/10 mb-4">UT</span><p id="t-ut" class="text-2xl">---</p></div>
+                    <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/40 font-black block border-b border-white/10 mb-4">ST</span><p id="t-st" class="text-2xl">---</p></div>
+                    <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/40 font-black block border-b border-white/10 mb-4">ŠT</span><p id="t-št" class="text-2xl">---</p></div>
+                    <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/40 font-black block border-b border-white/10 mb-4">PI</span><p id="t-pi" class="text-2xl">---</p></div>
+                </div>
             </div>
         </div>
 
-        <div id="sekcia-tyzden" class="hidden glass p-10 border-l-[12px] border-white/50 fade-in shadow-2xl">
-            <h2 class="text-3xl font-black mb-8 text-white uppercase tracking-widest">Týždenný plán aktivít</h2>
-            <div class="grid grid-cols-5 gap-4 text-center">
-                <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/60 font-black block border-b border-white/10 mb-2">PO</span><p id="t-po" class="text-xl">---</p></div>
-                <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/60 font-black block border-b border-white/10 mb-2">UT</span><p id="t-ut" class="text-xl">---</p></div>
-                <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/60 font-black block border-b border-white/10 mb-2">ST</span><p id="t-st" class="text-xl">---</p></div>
-                <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/60 font-black block border-b border-white/10 mb-2">ŠT</span><p id="t-št" class="text-xl">---</p></div>
-                <div class="bg-black/20 p-4 rounded-3xl"><span class="text-white/60 font-black block border-b border-white/10 mb-2">PI</span><p id="t-pi" class="text-xl">---</p></div>
-            </div>
+        <div id="foto-rezim" class="hidden absolute inset-0 z-[120] overflow-hidden rounded-[3rem] shadow-2xl">
+            <img id="full-foto" src="" class="h-full w-full object-cover img-zoom">
+        </div>
+
+        <div id="video-rezim" class="hidden absolute inset-0 z-[130] bg-black rounded-[3rem] overflow-hidden shadow-2xl">
+            <iframe id="yt-player" class="w-full h-full scale-[1.01]" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe>
         </div>
     </main>
 
-    <div id="foto-rezim" class="hidden fixed inset-0 z-[100] bg-black p-6"><img id="full-foto" src="" class="h-full w-full object-contain rounded-3xl shadow-2xl"></div>
-    <div id="video-rezim" class="hidden fixed inset-0 z-[110] bg-black"><iframe id="yt-player" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe></div>
-
-    <footer id="tv-footer" class="fixed bottom-0 left-0 w-full bg-black/40 backdrop-blur-md py-6 overflow-hidden border-t border-white/10">
-        <div class="whitespace-nowrap"><span id="tv-program" class="animate-marquee text-4xl font-black uppercase tracking-wider">...</span></div>
+    <footer id="tv-footer" class="fixed bottom-0 left-0 w-full bg-black/40 backdrop-blur-md py-8 overflow-hidden border-t border-white/10 z-[150]">
+        <div class="whitespace-nowrap"><span id="tv-program" class="animate-marquee text-5xl font-black uppercase tracking-widest text-white">...</span></div>
     </footer>
 
     <script>
         const dbUrl = "https://cdz-integra-default-rtdb.firebaseio.com/jedalnicek.json";
-        let mode = 0;
+        let subMode = "menu"; // Striedanie menu/tyzden
+        let masterMode = "info"; // "info" (text) vs "media" (foto/video)
+        let loopCounter = 0;
 
         function refresh() {
             fetch(dbUrl).then(r => r.json()).then(d => {
                 if(!d) return;
-                
-                // Aktualizácia farby pozadia
                 if(d.farba_pozadia) document.body.style.backgroundColor = d.farba_pozadia;
 
                 const tr = document.getElementById('text-rezim');
                 const fr = document.getElementById('foto-rezim');
                 const vr = document.getElementById('video-rezim');
                 const yt = document.getElementById('yt-player');
-                const hdr = document.getElementById('tv-header');
-                const ftr = document.getElementById('tv-footer');
 
-                if(d.rezim === 'foto') {
-                    tr.classList.add('hidden'); vr.classList.add('hidden'); fr.classList.remove('hidden');
-                    hdr.classList.add('hidden'); ftr.classList.add('hidden');
-                    document.getElementById('full-foto').src = d.url_foto;
-                    yt.src = "";
-                } 
-                else if(d.rezim === 'video') {
-                    tr.classList.add('hidden'); fr.classList.add('hidden'); vr.classList.remove('hidden');
-                    hdr.classList.add('hidden'); ftr.classList.add('hidden');
-                    const vUrl = "https://www.youtube.com/embed/" + d.url_video + "?autoplay=1&mute=0&rel=0";
-                    if(yt.src !== vUrl) yt.src = vUrl;
+                // Logika prepínania (Každých 30 sekúnd: 20s média, 10s text)
+                loopCounter += 3; // Keďže refresh je každé 3s
+                if (d.rezim === 'text') {
+                    masterMode = "info";
+                } else {
+                    if (loopCounter % 30 < 20) masterMode = "media"; else masterMode = "info";
                 }
-                else {
+
+                if (masterMode === "media") {
+                    tr.classList.add('hidden');
+                    if (d.rezim === 'foto') {
+                        fr.classList.remove('hidden'); vr.classList.add('hidden');
+                        document.getElementById('full-foto').src = d.url_foto;
+                        yt.src = "";
+                    } else if (d.rezim === 'video') {
+                        vr.classList.remove('hidden'); fr.classList.add('hidden');
+                        const vUrl = "https://www.youtube.com/embed/" + d.url_video + "?autoplay=1&mute=1&rel=0&controls=0";
+                        if(yt.src !== vUrl) yt.src = vUrl;
+                    }
+                } else {
+                    // INFO REŽIM (Texty)
                     fr.classList.add('hidden'); vr.classList.add('hidden'); tr.classList.remove('hidden');
-                    hdr.classList.remove('hidden'); ftr.classList.remove('hidden');
                     yt.src = "";
                     document.getElementById('tv-polievka').innerText = d.polievka || "---";
                     document.getElementById('tv-hlavne').innerText = d.hlavne_jedlo || "---";
@@ -107,15 +121,14 @@
             });
         }
 
+        // Striedanie Menu a Týždenného plánu (každých 10s v rámci textového režimu)
         setInterval(() => {
-            if(!document.getElementById('text-rezim').classList.contains('hidden')) {
-                const m = document.getElementById('sekcia-menu');
-                const t = document.getElementById('sekcia-tyzden');
-                mode = mode === 0 ? 1 : 0;
-                m.classList.toggle('hidden', mode === 1);
-                t.classList.toggle('hidden', mode === 0);
-            }
-        }, 15000);
+            const m = document.getElementById('sekcia-menu');
+            const t = document.getElementById('sekcia-tyzden');
+            subMode = subMode === "menu" ? "tyzden" : "menu";
+            m.classList.toggle('hidden', subMode === "tyzden");
+            t.classList.toggle('hidden', subMode === "menu");
+        }, 10000);
 
         function clock() {
             const n = new Date();
@@ -123,7 +136,7 @@
             document.getElementById('datum').innerText = n.toLocaleDateString('sk-SK', {weekday:'long', day:'numeric', month:'long'});
         }
         
-        fetch('https://meniny.vyskusa.sk/api/ok/sk').then(r => r.json()).then(d => document.getElementById('meniny-dnes').innerText = "Dnes má meniny: " + d.meniny.sk);
+        fetch('https://meniny.vyskusa.sk/api/ok/sk').then(r => r.json()).then(d => document.getElementById('meniny-dnes').innerText = "Dnes: " + d.meniny.sk);
         setInterval(refresh, 3000); setInterval(clock, 1000); refresh(); clock();
     </script>
 </body>
